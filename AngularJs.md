@@ -163,13 +163,14 @@ function panel(){
 - `隔离作用域`：当 scope:{} 时，指令作用域不再继承父作用域，两边的数据不再互通。
   - 這也就是 isolate scope
   - `@` operator: allow you to pass a `string` from your current scope to the isolated one.
-  - `=` operator: allow you to pass an `object` that you can use and modify from the isolated scope. (set up a `bidirectional binding`)如果直接複寫物件內屬性的內容，就會造成 break the two way bindings between your current scope and the isolated one and create two different copies of it (one in the current scope, and one in the isolated)
-  - `&` operator: allows you to call a `function` expression of your current scope from the isolated scope.
+  - `=` operator: (means two-way-data-binding) allow you to pass an `object` that you can use and modify from the isolated scope. (set up a `bidirectional binding`) 如果直接複寫物件內屬性的內容，就會造成 break the two way bindings between your current scope and the isolated one and create two different copies of it (one in the current scope, and one in the isolated)
+  - `&` operator: (means one-way-data-binding) allows you to call a `function` expression of your current scope from the isolated scope. （ 讓子層可以調用父層的 callback function，做控制反轉。例如[這裡](https://stackoverflow.com/a/31069658)）
 - refs:
   - [angularjs 一篇文章看懂自定义指令directive](https://www.cnblogs.com/echolun/p/11564103.html)
   - [Use of isolate scope - @, &, and = in a simple Angular Directive](https://stackoverflow.com/a/35377848/16124226)
   - [Docs: directive's scope option](https://docs.angularjs.org/api/ng/service/$compile)
   - [Docs: Isolating the Scope of a Directive](https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive)
+  - 小地雷：註冊自定義 Directive（子層）時，若父層利用 ngChange 傳遞 callback 給子層調用，且 callback 內閉包嘗試讀取預期被 onChange 後的父層 $scope.inputModel 的數據，會發現讀到的是 onChange 之前的。因為框架機制是子層 ngChange digest 後，在下一個 digest 才會影響到父層。Workaround 是在閉包加上 $timeout。請參考 [Onchange is getting triggered before the model update for isolate scope](https://github.com/angular/angular.js/issues/4558)
 
 ## 4.4. Direcitve 的 link 和 controller 的差別？
 - 執行順序：Controller → Direcitve link
