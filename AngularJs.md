@@ -368,3 +368,20 @@ https://stackoverflow.com/questions/35150084/access-to-the-local-variable-while-
 另一個問題是，存在 $scope 內的變數呢？會重新宣告賦值嗎
 
 我感覺都是類似閉包的機制把狀態儲存在函數上才對，因為這就是 JavaScript 的機制，用來模仿物件導向。
+
+# 9. 👉 Debugging
+
+## 9.1 Tools
+
+```js
+angular.element(temp1).scope()
+angular.element(temp1).controller()
+angular.element(temp1).injector() // Grab any Services
+
+```
+
+Say temp3 is a directive controller using `controllerAs: 'vm'`
+```js
+angular.element(temp3).scope().vm.__proto__.constructor.$inject
+angular.element(temp3).scope().vm.__proto__.constructor.$$moduleName
+```
