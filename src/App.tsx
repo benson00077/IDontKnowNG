@@ -2,43 +2,28 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { evalFnOnDevltools, getGlobalModules, getSelectedNodeInfo } from './helpers/evalFns'
 
-function getAngularInfo() {
-  //@ts-ignore
-  const el = $0; // DevTools-selected element
-  console.log(200, el)
-  if (!el) return "No element selected.";
-  if (!window.angular) console.error("No angular found.")
-  const ngEl = window.angular.element(el);
-  return {
-    scope: ngEl.scope(),
-    controller: ngEl.controller(),
-    injector: ngEl.injector(),
-  };
+type globalModule = {
+  name: string,
+  requires: string[]
 }
 
 function App() {
   const [count, setCount] = useState(0)
-  const [angularInfo, setAngularInfo] = useState<unknown>(null);
+  const [globalModules, setGlobalModules] = useState<Array<globalModule>>([]);
 
   const handleInspect = () => {
-    chrome.devtools.inspectedWindow.eval(
-      `(${getAngularInfo.toString()})()`,
-      (result, isException) => {
-        console.log(201, { result, isException })
-        if (!isException) {
-          setAngularInfo(result);
-        }
-      }
-    );
+    evalFnOnDevltools(getSelectedNodeInfo, (result) => {
+      console.log(300, result)
+    })
   };
 
-  console.log(200, chrome.devtools)
-  console.log(300, angularInfo)
-  // chrome.devtools.panels.create("AngularJS", "", "panel.html", function (panel) {
-  //   console.log(300, panel)
-  //   console.log("AngularJS DevTools Panel Created!");
-  // });
+  const inspectGlobalServices = () => {
+    evalFnOnDevltools(getGlobalModules, (result) => {
+      setGlobalModules(result as Array<globalModule>);
+    })
+  }
 
   return (
     <>
@@ -52,8 +37,18 @@ function App() {
       </div>
       <h1>Vite + React + TypeScript</h1>
       <div className="card">
+        <div>{globalModules.map(module => {
+          return (
+            <div key={module.name}>
+              {module.name} Requires: {module.requires.length}
+            </div>
+          )
+        })}</div>
         <button onClick={handleInspect}>
           Inspect
+        </button>
+        <button onClick={inspectGlobalServices}>
+          GlobalServices
         </button>
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
